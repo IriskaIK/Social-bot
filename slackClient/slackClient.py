@@ -72,7 +72,7 @@ def chose_curent_type(ack, body, say):
         say(text=f'Успешно добавлено: {cur_type}')
 
 @app.action("category_select")
-def chose_category(message,ack, say):
+def chose_category(body ,ack, say):
     ack()
     if body['channel']['name'] == 'directmessage':
         curent_category = body['actions'][0]['selected_option']['text']['text']
