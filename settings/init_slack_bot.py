@@ -9,14 +9,14 @@ static_message_type = [
 				"type": "static_select",
 				"placeholder": {
 					"type": "plain_text",
-					"text": "Выберите увлечение"
+					"text": "Оберіть захоплення"
 				},
 				"options": [],
 				"action_id": "type_select"
 			},
 			"label": {
 				"type": "plain_text",
-				"text": "Выберите из предложеного списка"
+				"text": "Оберіть з запропонованого списку"
 			}
 		},
 		{
@@ -28,7 +28,7 @@ static_message_type = [
 			},
 			"label": {
 				"type": "plain_text",
-				"text": "Или добавьте что то свое"
+				"text": "Або додайте щось своє"
 			}
 		}
 	]
@@ -42,14 +42,14 @@ static_empty_message_category = [
 			},
 			"label": {
 				"type": "plain_text",
-				"text": "Добавьте что то свое"
+				"text": "Додати щось своє"
 			}
 		},
 		{
 			"type": "section",
 			"text": {
 				"type": "plain_text",
-				"text": "Или можете оставить выбранное "
+				"text": "Або можете залишити обране "
 			},
 			"accessory": {
 				"type": "button",
@@ -69,14 +69,14 @@ static_message_category = [
 				"type": "static_select",
 				"placeholder": {
 					"type": "plain_text",
-					"text": "Выберите увлечение"
+					"text": "Оберіть захоплення"
 				},
 				"options": [],
 				"action_id": "category_select"
 			},
 			"label": {
 				"type": "plain_text",
-				"text": "Выберите из предложеного списка"
+				"text": "Оберіть з запропонованого списку"
 			}
 		},
 		{
@@ -88,14 +88,14 @@ static_message_category = [
 			},
 			"label": {
 				"type": "plain_text",
-				"text": "Или добавьте что то свое"
+				"text": "Або додайте щось своє"
 			}
 		},
 		{
 			"type": "section",
 			"text": {
 				"type": "plain_text",
-				"text": "Или можете оставить выбранное "
+				"text": "Або можете залишити обране "
 			},
 			"accessory": {
 				"type": "button",
@@ -124,7 +124,7 @@ direct_mess_help = [
 					"type": "button",
 					"text": {
 						"type": "plain_text",
-						"text": "Добавить увлечение"
+						"text": "Додати захоплення"
 					},
 					"style": "primary",
 					"value": "button_add_type",
@@ -139,7 +139,7 @@ direct_mess_start = [
 			"type": "section",
 			"text": {
 				"type": "plain_text",
-				"text": "Привет"
+				"text": "Привіт, додай свої інтереси, обераючи серед запропанованих, або написавши свої"
 			}
 		},
 		{
@@ -149,7 +149,7 @@ direct_mess_start = [
 					"type": "button",
 					"text": {
 						"type": "plain_text",
-						"text": "Добавить увлечение"
+						"text": "Додати захоплення"
 					},
 					"style": "primary",
 					"value": "button_add_type",
@@ -159,7 +159,7 @@ direct_mess_start = [
 					"type": "button",
 					"text": {
 						"type": "plain_text",
-						"text": "Помощь"
+						"text": "Допомога"
 					},
 					"style": "danger",
 					"value": "button_help",

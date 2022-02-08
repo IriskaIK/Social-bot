@@ -39,6 +39,11 @@ class Database:
                         
             return arr
 
+
+
+
+        
+
     def update_value_of_relatioships(self, group_id):
             #return all pair users
             group_id = str(group_id)
@@ -48,17 +53,18 @@ class Database:
                 matrix_of_users.append([])
                 for k in range(len(arr_of_users)):
                     if i != k:
+                        days = self.get_count_of_days(arr_of_users[i], arr_of_users[k])
                         sum_value = 0
                         count_of_relate = 0
                         with self.driver.session(database="neo4j") as session:
-                            s = session.run('''MATCH (u1:User {user_id: '%s'}), (u2:User{user_id: '%s'}) MATCH p1 = (u1)-[c*2..4]-(u2) return c'''%(arr_of_users[i], arr_of_users[k]))
+                            s = session.run('''MATCH (u1:User {user_id: '%s'}), (u2:User{user_id: '%s'}) MATCH p1 = (u1)-[c:Own*2..4]-(u2) return c'''%(arr_of_users[i], arr_of_users[k]))
                             for l in s:
                                 for p in l:
                                     for b in p:
                                         for o,n in b.items():
                                             count_of_relate = count_of_relate + 1
                                             sum_value = sum_value + n
-                        matrix_of_users[-1].append(round(sum_value/count_of_relate, 2))
+                        matrix_of_users[-1].append(round(sum_value/count_of_relate+days*days*2, 2))
                     else:
                         matrix_of_users[-1].append(0)
             
@@ -80,6 +86,15 @@ class Database:
                         matrix_of_users[i][u2_index] = 0
 
                     dict_of_pair[arr_of_users[u1_index]] = arr_of_users[u2_index]
+                    for i in arr_of_users:
+                        if i == arr_of_users[u1_index]:
+                            pass
+                        elif i == arr_of_users[u2_index]:
+                            self.update_count_of_days(arr_of_users[u1_index], arr_of_users[u2_index], True)
+                        else:
+                            self.update_count_of_days(arr_of_users[u1_index], i, False)
+                            self.update_count_of_days(arr_of_users[u2_index], i, False)
+
             arr_of_interest = []
             for k, v in dict_of_pair.items():
                 arr_of_interest.append([])
@@ -95,12 +110,26 @@ class Database:
                                             pass
                                         else:
                                             arr_of_interest[-1].append(user['name'])
+
+
+            platform = ''
+            with self.driver.session(database="neo4j") as session:
+                s = session.run('''MATCH (u:User) where u.user_id = '%s' return u.platform'''%(arr_of_users[0]))
+                data = s.data()
+                print(data)
+                for k, v in data[0].items():
+                    platform = v
+            print(dict_of_pair)
             print(arr_of_interest)
+            print(platform)
+            return dict_of_pair, arr_of_interest, platform
 
 
   
     
     ###group###
+
+ 
 
     def get_group_status(self, group_id):
         #check if group in db
@@ -158,12 +187,12 @@ class Database:
 
 
     ###user###
-    def add_user(self, user_id , group_id, user_name):
+    def add_user(self, user_id , group_id, user_name, platform):
         #just add user
         group_id = str(group_id)
         user_id = str(user_id)
         with self.driver.session(database="neo4j") as session:
-            session.run('''MERGE (n:User{name:"%s", user_id: '%s', group_id: '%s', type:'User'})'''%(user_name, user_id, group_id))
+            session.run('''MERGE (n:User{name:"%s", user_id: '%s', group_id: '%s', type:'User', platform: '%s'})'''%(user_name, user_id, group_id, platform))
 
     def delete_user(self, user_id, group_id):
         #just delete user
@@ -208,11 +237,55 @@ class Database:
         with self.driver.session(database="neo4j") as session:
             session.run('''MERGE(u1:Mate{user_id:'%s', group_id:'%s'}) MERGE(u2:Mate{user_id:'%s', group_id:'%s'}) MERGE (u1)-[r:Mates]-(u2)'''%(user_id1, group_id, user_id2, group_id))
     
+    def get_all_groupid(self):
+        arr_of_all_group_id = []
+        with self.driver.session(database="neo4j") as session:
+            result = session.run('''Match(n) where n.name = 'Sport' return n.group_id''')
+            for i in result.data():
+                for k, v in i.items():
+                    arr_of_all_group_id.append(v)
 
-    
-    
+        return arr_of_all_group_id
+
+    def get_count_of_days(self, u1, u2):
+        with self.driver.session(database="neo4j") as session:
+            result = session.run('''MATCH (u1:User {user_id: '%s'}), (u2:User{user_id: '%s'}) MATCH p1 = (u1)-[c:Mates]-(u2) return c.days'''%(u1, u2))
+            data = result.data()
+            if bool(data) == False:
+                session.run('''MATCH (u1:User {user_id: '%s'}), (u2:User{user_id: '%s'}) MERGE(u1)-[r:Mates{days:0}]-(u2)'''%(u1, u2))
+                return 0
+            
+            for k,v in data[0].items():
+                days = v
+            return days
+
+
+    def update_count_of_days(self, u1, u2, pair): 
+        with self.driver.session(database="neo4j") as session:
+            if pair == True:
+                session.run('''MATCH (u1:User {user_id: '%s'}), (u2:User{user_id: '%s'}) MATCH p1 = (u1)-[c:Mates]-(u2) SET c.days = 0'''%(u1, u2))
+            else:
+                session.run('''MATCH (u1:User {user_id: '%s'}), (u2:User{user_id: '%s'}) MATCH p1 = (u1)-[c:Mates]-(u2) SET c.days = c.days + 1'''%(u1, u2))
+
+    def get_username(self, u_id):
+        with self.driver.session(database="neo4j") as session:
+            data = session.run('''MATCH(u:User{user_id: '%s'}) RETURN u.name'''%(u_id))
+            somedata = data.data()
+            if bool(somedata):
+                for k, v in somedata[0].items():
+                    return v   
 
                     
                                 
+db = Database("bolt://44.195.45.29:7687", "neo4j", "careers-milliliter-conduct")
+# db.add_user('1', '-440396677', 'TestUser1', 'tg')
+# db.add_user('2', '-440396677', 'TestUser2', 'tg')
 
-db = Database("bolt://100.26.187.199:7687", "neo4j", "wax-leader-drops")
+# db.add_type('1', '-440396677', 'Sport')
+# db.add_category('1', '-440396677', 'drama', 'Cinema')
+# db.add_category('2', '-440396677', 'football', 'Sport')
+# db.add_category('2', '-440396677', 'comedy', 'Cinema')
+
+
+# db.update_value_of_relatioships('-440396677')
+# db.delete_group('-440396677')

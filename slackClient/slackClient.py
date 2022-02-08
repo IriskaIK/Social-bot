@@ -1,9 +1,11 @@
 from slack_bolt import App
+import slack
 from neo4jdb.db import db
 from settings.init_slack_bot import interests, direct_mess_start, help_message, direct_mess_help, static_option, static_message_category, static_message_type, static_empty_message_category
 from settings.slack_message_gnerator import mg
 slack_bot_token = 'xoxb-2653322479682-2782803062787-TnxwvwMGCmcIWI8DEGZVQXVR'
 app = App(token=slack_bot_token)
+client = slack.WebClient(token=slack_bot_token)
 
 class Form():
     current_type = ''
@@ -13,14 +15,14 @@ def start(ack ,body, say):
     ack()
     if body['channel_name'] != 'directmessage':
         if db.get_group_status(body['channel_id']) == False:
-            say('Инициализирую группу. Это может занять какоето время')
+            say('Ініціалізую групу. Це може зайняти декілька хвилин')
             db.create_group(body['channel_id'], interests)
-            say('Группа инициализирована. /reg чтобы зарегестрироваться.')
+            say('Група ініціалізована. Напишіть /reg щоб зареєструватися.')
         else:
-            say('Группа уже создана')
+            say('Група вже існує')
     elif body['channel_name'] == 'directmessage':
         if db.get_user_status(body['user_id']) == False:
-            say('текст, если юзер пишет старт боту в лс. если он еще не зареган в бд')
+            say('Для використання боту, створіть группу та додайте його туди, після чого напишіть /start')
         else:
             say(blocks=direct_mess_start) ##TODO: add key
 
@@ -31,13 +33,13 @@ def regestr_user(ack ,body, say):
     if db.get_group_status(body['channel_id']) == True: 
         if body['channel_name'] != 'directmessage':
             if db.get_user_status(body['user_id']) == False:
-                db.add_user(user, body['channel_id'], body['user_name'])
-                say(f'Вы успешно зарегестрированы, <@{user}>')
+                db.add_user(user, body['channel_id'], body['user_name'], 'slack')
+                say(f'Ви успішно зареєстровані, <@{user}>')
                 say(blocks=direct_mess_start, channel=user) ##TODO: add keyboard with interests
             else:
-                say(f'Вы уже зарегестрированы в другой группе, <@{user}>')
+                say(f'Ви вже зареєстровані в іншій групі, <@{user}>')
     else:
-        say(f'Сначала инициализируйте группу используя /start, <@{user}>')
+        say(f'Спочатку ініціалізуйте групу використовуючи /start, <@{user}>')
 
 @app.action("button_help")
 def help_info(ack, body, say):
@@ -69,7 +71,7 @@ def chose_curent_type(ack, body, say):
     if body['channel']['name'] == 'directmessage':
         cur_type = body['actions'][0]['text']['text']
         db.add_type(body['user']['id'], db.get_user_group_id(body['user']['id']), cur_type)
-        say(text=f'Успешно добавлено: {cur_type}')
+        say(text=f'Успішно додано: {cur_type}')
 
 @app.action("category_select")
 def chose_category(body ,ack, say):
@@ -77,7 +79,7 @@ def chose_category(body ,ack, say):
     if body['channel']['name'] == 'directmessage':
         curent_category = body['actions'][0]['selected_option']['text']['text']
         db.add_category(body['user']['id'], db.get_user_group_id(body['user']['id']), curent_category, Form.current_type)
-        say(text=f'Успешно добавлено: {curent_category}')
+        say(text=f'Успішно додано: {curent_category}')
 
 @app.action("add_own_type")
 def add_new_type_to_db(ack, body, say):
@@ -85,12 +87,19 @@ def add_new_type_to_db(ack, body, say):
     type_one = body['actions'][0]['value']
     if body['channel']['name'] == 'directmessage':
         db.add_type(body['user']['id'], db.get_user_group_id(body['user']['id']), type_one)
-        say(text=f'Успешно добавлено: {type_one}')
+        say(text=f'Успішно додано: {type_one}')
+
 @app.action("add_own_category")
 def add_new_category_to_db(ack, body, say):
     ack()
     category_one = body['actions'][0]['value']
     if body['channel']['name'] == 'directmessage':
         db.add_category(body['user']['id'], db.get_user_group_id(body['user']['id']), category_one, Form.current_type)
-        say(text=f'Успешно добавлено: {category_one}')
+        say(text=f'Успішно додано: {category_one}')
+
+def send_pair(g_id, u1, u2, interests):
+    user1 = db.get_username(u1)
+    user2 = db.get_username(u2)
+    client.chat_postMessage(text=f"Сьогодні спілкуються {user1} та {user2} на такі теми як на їх спільні теми: {', '.join(interests)}", channel=g_id)
+
 
