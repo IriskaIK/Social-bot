@@ -35,7 +35,7 @@ def create_pair():
 
 
 
-schedule.every().day.at("13:20").do(create_pair)
+schedule.every().day.at("10:00").do(create_pair)
 
 def loop():
     while True:

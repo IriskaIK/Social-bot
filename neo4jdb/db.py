@@ -277,15 +277,19 @@ class Database:
 
                     
                                 
-db = Database("bolt://44.195.45.29:7687", "neo4j", "careers-milliliter-conduct")
-# db.add_user('1', '-440396677', 'TestUser1', 'tg')
-# db.add_user('2', '-440396677', 'TestUser2', 'tg')
-
-# db.add_type('1', '-440396677', 'Sport')
-# db.add_category('1', '-440396677', 'drama', 'Cinema')
-# db.add_category('2', '-440396677', 'football', 'Sport')
-# db.add_category('2', '-440396677', 'comedy', 'Cinema')
+db = Database("bolt://54.209.49.200:7687", "neo4j", "tempers-movement-setup")
+# db.add_user('1', '-723355087', 'TestUser1', 'tg')
+# db.add_user('3', '-723355087', 'TestUser3', 'tg')
+# db.add_user('2', '-723355087', 'TestUser2', 'tg')
 
 
-# db.update_value_of_relatioships('-440396677')
+# db.add_type('1', '-723355087', 'Sport')
+# db.add_category('1', '-723355087', 'tennis', 'Sport')
+# db.add_category('3', '-723355087', 'drama', 'Cinema')
+# db.add_category('3', '-723355087', 'football', 'Sport')
+# db.add_category('2', '-723355087', 'comedy', 'Cinema')
+
+
+# db.update_value_of_relatioships('-723355087')
+# db.delete_group('-723355087')
 # db.delete_group('-440396677')
